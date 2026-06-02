@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Job" ADD COLUMN IF NOT EXISTS "company" TEXT NOT NULL DEFAULT '';
+
+-- AlterTable
+ALTER TABLE "Resume" ADD COLUMN IF NOT EXISTS "extractedText" TEXT NOT NULL DEFAULT '';
