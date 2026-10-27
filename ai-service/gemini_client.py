@@ -5,7 +5,7 @@ from typing import Any
 import google.generativeai as genai
 from pydantic import BaseModel
 
-DEFAULT_MODEL = "gemini-2.0-flash"
+DEFAULT_MODEL = "gemini-3.8-flash"
 
 
 def _model() -> genai.GenerativeModel:
