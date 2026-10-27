@@ -36,7 +36,9 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
         ? data.error
         : typeof data.message === "string"
           ? data.message
-          : `Request failed (${res.status})`;
+          : typeof data.detail === "string"
+            ? data.detail
+            : `Request failed (${res.status})`;
     throw new ApiError(message, {
       blocked: data.blocked === true,
       status: res.status,

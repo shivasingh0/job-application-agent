@@ -16,18 +16,35 @@ def _model() -> genai.GenerativeModel:
     return genai.GenerativeModel(os.getenv("GEMINI_MODEL", DEFAULT_MODEL))
 
 
+import re
+import time
+import google.api_core.exceptions as g_exceptions
+
+
 def generate_json(prompt: str, *, parts: list[Any] | None = None) -> dict:
     model = _model()
     content: list[Any] = [prompt]
     if parts:
         content.extend(parts)
 
-    response = model.generate_content(
-        content,
-        generation_config=genai.GenerationConfig(
-            response_mime_type="application/json",
-        ),
-    )
+    max_retries = 3
+    response = None
+    for attempt in range(max_retries):
+        try:
+            response = model.generate_content(
+                content,
+                generation_config=genai.GenerationConfig(
+                    response_mime_type="application/json",
+                ),
+            )
+            break
+        except (g_exceptions.ResourceExhausted, g_exceptions.TooManyRequests) as exc:
+            if attempt == max_retries - 1:
+                raise
+            match = re.search(r"retry in (\d+(?:\.\d+)?)s", str(exc)) or re.search(r"seconds:\s*(\d+)", str(exc))
+            wait_time = (float(match.group(1)) + 1.0) if match else 20.0
+            print(f"[Gemini 429] Rate limit reached. Waiting {wait_time:.1f}s before retry (attempt {attempt + 1}/{max_retries})...")
+            time.sleep(min(wait_time, 35.0))
 
     if not response.candidates:
         block = response.prompt_feedback
