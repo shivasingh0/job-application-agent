@@ -1,0 +1,23 @@
+# Uploads
+/uploads/
+uploads/
+
+# Environment variables
+.env
+.env*.local
+*.env
+
+# Dependencies
+node_modules/
+venv/
+.venv/
+
+# Build artifacts
+dist/
+.next/
+out/
+__pycache__/
+*.pyc
+
+# Prisma generated files
+backend/generated/
