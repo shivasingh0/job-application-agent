@@ -168,3 +168,55 @@ applicationRouter.post("/schedule", async (req, res) => {
     res.status(500).json({ error: "Failed to schedule application" });
   }
 });
+
+applicationRouter.patch("/:id", async (req, res) => {
+  try {
+    const { emailSubject, emailBody, scheduledAt, status } = req.body as {
+      emailSubject?: string;
+      emailBody?: string;
+      scheduledAt?: string;
+      status?: string;
+    };
+
+    const data: {
+      emailSubject?: string;
+      emailBody?: string;
+      scheduledAt?: Date;
+      status?: string;
+    } = {};
+
+    if (typeof emailSubject === "string") data.emailSubject = emailSubject.trim();
+    if (typeof emailBody === "string") data.emailBody = emailBody.trim();
+    if (typeof scheduledAt === "string") data.scheduledAt = new Date(scheduledAt);
+    if (typeof status === "string") data.status = status.trim();
+
+    if (Object.keys(data).length === 0) {
+      res.status(400).json({ error: "No fields to update" });
+      return;
+    }
+
+    const application = await prisma.application.update({
+      where: { id: req.params.id },
+      data,
+      include: { resume: true, job: true },
+    });
+
+    res.json(application);
+  } catch (err) {
+    console.error(err);
+    res.status(404).json({ error: "Application not found" });
+  }
+});
+
+applicationRouter.delete("/:id", async (req, res) => {
+  try {
+    await prisma.application.delete({
+      where: { id: req.params.id },
+    });
+    res.json({ ok: true, message: "Scheduled application cancelled" });
+  } catch (err) {
+    console.error(err);
+    res.status(404).json({ error: "Application not found" });
+  }
+});
+

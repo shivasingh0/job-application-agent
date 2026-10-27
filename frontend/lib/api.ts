@@ -165,6 +165,28 @@ export function scheduleApplication(body: {
   });
 }
 
+export function updateApplication(
+  id: string,
+  body: {
+    emailSubject?: string;
+    emailBody?: string;
+    scheduledAt?: string;
+    status?: string;
+  },
+) {
+  return request<Application>(`${API}/application/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+export function deleteApplication(id: string) {
+  return request<{ ok: boolean; message: string }>(`${API}/application/${id}`, {
+    method: "DELETE",
+  });
+}
+
 export function assertValidJobPosting(parsed: JobParsed) {
   if (parsed.is_job_posting === false) {
     throw new Error(
