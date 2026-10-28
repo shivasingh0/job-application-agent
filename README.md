@@ -59,22 +59,27 @@ SMTP_FROM=you@gmail.com
 AI_SERVICE_URL=http://localhost:8000
 ```
 
-### AI provider (`ai-service/.env`)
+### AI provider and fallback models (`ai-service/.env`)
 
-Set `AI_PROVIDER` to `gemini` or `groq` and the matching API key:
+Configure primary provider, models, and fallback chains. If a model doesn't respond or exceeds rate/quota limits, the system automatically falls back to secondary models and providers:
 
 ```env
-AI_PROVIDER=gemini
-GEMINI_API_KEY=...
-GEMINI_MODEL=gemini-2.0-flash
-
-# or
+# Active provider: groq | gemini (with automatic provider fallback)
 AI_PROVIDER=groq
+AI_FALLBACK_PROVIDER=gemini
+
+# Groq models + fallbacks
 GROQ_API_KEY=...
-GROQ_MODEL=llama-3.3-70b-versatile
+GROQ_MODEL=openai/gpt-oss-120b
+GROQ_FALLBACK_MODELS=openai/gpt-oss-20b,qwen/qwen3.8-27b,llama-3.3-70b-versatile
 GROQ_VISION_MODEL=meta-llama/llama-4-scout-17b-16e-instruct
+
+# Gemini models + fallbacks
+GEMINI_API_KEY=...
+GEMINI_MODEL=gemini-3.8-flash
+GEMINI_FALLBACK_MODELS=gemini-3.7-flash,gemini-3.6-flash,gemini-flash-latest
 ```
 
-`GET http://localhost:8000/health` returns the active provider and model.
+`GET http://localhost:8000/health` returns the active provider chain, primary model, and all fallback models.
 
 Scheduled emails: `node-cron` runs every minute, sends due applications, marks them `sent`.
